@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.64",
+    "@base-ui/react": "^1.1.0",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",

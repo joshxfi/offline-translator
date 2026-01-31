@@ -16,7 +16,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { languagesList, SOURCE_LANG } from "@/lib/constants";
+import { languagesList } from "@/lib/constants";
 import { buildPrompt } from "@/lib/utils";
 
 export default function Home() {
@@ -28,23 +28,22 @@ export default function Home() {
   const handleSubmit = async () => {
     if (!sourceLang || !targetLang) return;
 
-    const sourceCode = languagesList.find((l) => l.lang === sourceLang)?.code;
-    const targetCode = languagesList.find((l) => l.lang === targetLang)?.code;
+    const source = languagesList.find((l) => l.name === sourceLang);
+    const target = languagesList.find((l) => l.name === targetLang);
 
-    if (!sourceCode || !targetCode) return;
+    if (!source || !target) return;
 
     sendMessage({
       text: buildPrompt({
         text: input,
-        sourceLang,
-        sourceCode,
-        targetLang,
-        targetCode,
+        sourceLang: source,
+        targetLang: target,
       }),
     });
   };
 
   const latestMessage = messages[messages.length - 1];
+  const languages = languagesList.map((lang) => lang.name);
 
   return (
     <main className="max-w-4xl flex min-h-screen mx-auto justify-center items-center">
@@ -56,7 +55,7 @@ export default function Home() {
               <Combobox
                 value={sourceLang}
                 onValueChange={setSourceLang}
-                items={SOURCE_LANG}
+                items={languages}
               >
                 <ComboboxInput placeholder="Select a language" />
                 <ComboboxContent>
@@ -94,7 +93,7 @@ export default function Home() {
               <Combobox
                 value={targetLang}
                 onValueChange={setTargetLang}
-                items={SOURCE_LANG}
+                items={languages}
               >
                 <ComboboxInput placeholder="Select a language" />
                 <ComboboxContent>

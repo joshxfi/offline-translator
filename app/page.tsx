@@ -17,21 +17,36 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { languagesList } from "@/lib/constants";
+import type { Language } from "@/lib/types";
 import { buildPrompt } from "@/lib/utils";
+import { getLanguageFromText } from "./actions/language";
 
 export default function Home() {
   const [input, setInput] = useState("");
-  const [sourceLang, setSourceLang] = useState<string | null>("English");
-  const [targetLang, setTargetLang] = useState<string | null>("German");
+  const [detecting, setDetecting] = useState(false);
+  const [sourceLang, setSourceLang] = useState<string | null>(
+    "Detect language",
+  );
+  const [targetLang, setTargetLang] = useState<string | null>("Spanish");
   const { messages, sendMessage, status } = useChat();
 
   const handleSubmit = async () => {
     if (!sourceLang || !targetLang) return;
 
-    const source = languagesList.find((l) => l.name === sourceLang);
     const target = languagesList.find((l) => l.name === targetLang);
 
-    if (!source || !target) return;
+    let source: Language | undefined;
+
+    if (sourceLang === "Detect language") {
+      setDetecting(true);
+      source = await getLanguageFromText(input);
+      setSourceLang(source.name);
+      setDetecting(false);
+    } else {
+      source = languagesList.find((l) => l.name === sourceLang);
+    }
+
+    if (!target || !source) return;
 
     sendMessage({
       text: buildPrompt({
@@ -46,7 +61,7 @@ export default function Home() {
   const languages = languagesList.map((lang) => lang.name);
 
   return (
-    <main className="max-w-4xl flex min-h-screen mx-auto justify-center items-center">
+    <main className="max-w-4xl container px-4 flex min-h-screen mx-auto justify-center items-center">
       <div className="grid grid-cols-2 w-full gap-12">
         <section className="w-full space-y-2">
           <Field data-disabled>
@@ -55,7 +70,7 @@ export default function Home() {
               <Combobox
                 value={sourceLang}
                 onValueChange={setSourceLang}
-                items={languages}
+                items={["Detect language", ...languages]}
               >
                 <ComboboxInput placeholder="Select a language" />
                 <ComboboxContent>
@@ -80,9 +95,17 @@ export default function Home() {
             />
           </Field>
 
-          <Button onClick={handleSubmit} className="cursor-pointer">
+          <Button
+            disabled={status === "submitted" || detecting}
+            onClick={handleSubmit}
+            className="cursor-pointer"
+          >
             Translate
-            {status === "submitted" ? <Spinner /> : <LanguagesIcon />}
+            {status === "submitted" || detecting ? (
+              <Spinner />
+            ) : (
+              <LanguagesIcon />
+            )}
           </Button>
         </section>
 

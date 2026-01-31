@@ -1,6 +1,4 @@
-import type { Language } from "./types";
-
-export const languagesList: Language[] = [
+export const languagesList = [
   { name: "Afar", code: "aa" },
   { name: "Abkhazian", code: "ab" },
   { name: "Afrikaans", code: "af" },

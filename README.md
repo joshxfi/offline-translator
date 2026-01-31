@@ -9,7 +9,8 @@ A local-first translation web app powered by `translategemma` & supports multipl
 
 ### Pull translation model
 ```sh
-$ ollama pull translategemma:12b
+$ ollama pull translategemma:12b # translation model
+$ ollama pull translategemma:4b  # for language detection
 ```
 ### Install dependenices
 ```sh

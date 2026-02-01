@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { languagesList } from "@/lib/constants";
 import type { Language } from "@/lib/types";
 import { buildPrompt } from "@/lib/utils";
-import { getLanguageFromText } from "./actions/language";
+import { detectLanguageAction } from "./actions/language";
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -42,7 +42,7 @@ export default function Home() {
 
     if (sourceLang === "Detect language") {
       setIsDetecting(true);
-      source = await getLanguageFromText(input);
+      source = await detectLanguageAction(input);
       setSourceLang(source.name);
       setIsDetecting(false);
     } else {

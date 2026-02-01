@@ -4,7 +4,9 @@ import { generateText, Output } from "ai";
 import { ollama } from "ai-sdk-ollama";
 import { LanguageSchema } from "@/lib/types";
 
-export const getLanguageFromText = async (text: string) => {
+export const detectLanguageAction = async (text: string) => {
+  "use cache";
+
   const { output } = await generateText({
     model: ollama("translategemma:4b"),
     output: Output.object({

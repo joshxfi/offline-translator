@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { useCompletion } from "@ai-sdk/react";
 import { LanguagesIcon } from "lucide-react";
 import { useState } from "react";
 import { Streamdown } from "streamdown";
@@ -23,12 +23,15 @@ import { getLanguageFromText } from "./actions/language";
 
 export default function Home() {
   const [input, setInput] = useState("");
-  const [detecting, setDetecting] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
   const [sourceLang, setSourceLang] = useState<string | null>(
     "Detect language",
   );
   const [targetLang, setTargetLang] = useState<string | null>("Spanish");
-  const { messages, sendMessage, status } = useChat();
+
+  const { completion, complete, isLoading } = useCompletion({
+    api: "/api/translate",
+  });
 
   const handleSubmit = async () => {
     if (!sourceLang || !targetLang) return;
@@ -38,26 +41,25 @@ export default function Home() {
     let source: Language | undefined;
 
     if (sourceLang === "Detect language") {
-      setDetecting(true);
+      setIsDetecting(true);
       source = await getLanguageFromText(input);
       setSourceLang(source.name);
-      setDetecting(false);
+      setIsDetecting(false);
     } else {
       source = languagesList.find((l) => l.name === sourceLang);
     }
 
     if (!target || !source) return;
 
-    sendMessage({
-      text: buildPrompt({
+    complete(
+      buildPrompt({
         text: input,
         sourceLang: source,
         targetLang: target,
       }),
-    });
+    );
   };
 
-  const latestMessage = messages[messages.length - 1];
   const languages = languagesList.map((lang) => lang.name);
 
   return (
@@ -91,21 +93,17 @@ export default function Home() {
               value={input}
               className="w-full"
               placeholder="Type your message to translate here."
-              disabled={status === "streaming"}
+              disabled={isLoading || isDetecting}
             />
           </Field>
 
           <Button
-            disabled={status === "submitted" || detecting}
+            disabled={isLoading || isDetecting}
             onClick={handleSubmit}
             className="cursor-pointer"
           >
             Translate
-            {status === "submitted" || detecting ? (
-              <Spinner />
-            ) : (
-              <LanguagesIcon />
-            )}
+            {isLoading || isDetecting ? <Spinner /> : <LanguagesIcon />}
           </Button>
         </section>
 
@@ -132,19 +130,8 @@ export default function Home() {
               </Combobox>
             </FieldLabel>
             <div className="border-input bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border px-3 py-2 text-base shadow-xs md:text-sm">
-              {latestMessage?.role === "assistant" ? (
-                latestMessage?.parts.map((part, i) => {
-                  switch (part.type) {
-                    case "text":
-                      return (
-                        <Streamdown key={`${latestMessage.id}-${i}`}>
-                          {part.text}
-                        </Streamdown>
-                      );
-                    default:
-                      return null;
-                  }
-                })
+              {completion ? (
+                <Streamdown>{completion}</Streamdown>
               ) : (
                 <p className="text-muted-foreground">
                   Your translated text will appear here.

@@ -22,14 +22,13 @@ import { buildPrompt } from "@/lib/utils";
 import { detectLanguageAction } from "./actions/language";
 
 export default function Home() {
-  const [input, setInput] = useState("");
   const [isDetecting, setIsDetecting] = useState(false);
   const [sourceLang, setSourceLang] = useState<string | null>(
     "Detect language",
   );
   const [targetLang, setTargetLang] = useState<string | null>("Spanish");
 
-  const { completion, complete, isLoading } = useCompletion({
+  const { completion, complete, isLoading, input, setInput } = useCompletion({
     api: "/api/translate",
   });
 

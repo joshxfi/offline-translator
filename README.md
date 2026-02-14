@@ -13,6 +13,7 @@ A local-first translation web app powered by `translategemma` & supports multipl
 ```sh
 $ ollama pull translategemma:12b # translation model
 $ ollama pull translategemma:4b  # for language detection
+$ ollama pull glm-ocr:bf16       # for camera OCR
 ```
 ### Install dependenices
 ```sh
